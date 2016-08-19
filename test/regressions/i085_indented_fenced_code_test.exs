@@ -12,38 +12,52 @@ defmodule Regressions.I085IndentedFencedCodeTest do
     assert result == "<pre><code class=\"elixir\">    defmodule\n    ```</code></pre>\n"
   end
 
+  test "inline code" do
+    result = Earmark.to_html "1. one\n   Hello ```erlang World\n Universe ```"
+    assert result == "<ol>\n<li>one\n   Hello <code class=\"inline\">erlang World\n Universe</code>\n</li>\n</ol>\n"
+  end
+
   # In list items, interpret the backtick fence
   test "code block (in list item, with 4-space indent and ending fence in-line)" do
     result = Earmark.to_html "1. one\n\n    ```elixir\n    defmodule```\n"
     assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule```</code></pre>\n</li>\n</ol>\n"
   end
 
-  test "backtick code fence in list item, closing fince idemaligned" do
+  test "backtick code fence in list item, closing fence idemaligned" do
     result = Earmark.to_html "1. one\n\n    ```elixir\n    defmodule\n    ```"
     assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule</code></pre>\n</li>\n</ol>\n"
 
   end
-  test "backtick code fence in list item, closing fince less aligned" do
+  test "backtick code fence in list item, closing fence less aligned" do
     result = Earmark.to_html "1. one\n\n    ```elixir\n    defmodule\n  ```"
     assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule</code></pre>\n</li>\n</ol>\n"
   end
 
-  test "backtick code fence in list item, closing fince more aligned" do
+  test "backtick code fence in list item, closing fence more aligned" do
     result = Earmark.to_html "  1. one\n    ```elixir\n    defmodule\n        ```"
     assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule</code></pre>\n</li>\n</ol>\n"
   end
-  
-  test "tilde code fence in list item, closing fince idemaligned" do
-    result = Earmark.to_html "1. one\n\n    ~~~elixir\n    defmodule\n    ~~~"
-    assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule</code></pre>\n</li>\n</ol>\n"
 
+  test "unidented backtick code fence not in list item" do 
+    result = Earmark.to_html "  1. one\n```elixir\n    defmodule\n        ```"
+    assert result == "<ol>\n<li>one\n</li>\n</ol>\n<pre><code class=\"elixir\">    defmodule</code></pre>\n"
   end
-  test "tilde code fence in list item, closing fince less aligned" do
+  
+  test "tilde code fence in list item, closing fence idemaligned" do
+    result = Earmark.to_html "1. one\n\n    ~~~elixir\n    defmodule\n    ~~~"
+    assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">defmodule</code></pre>\n</li>\n</ol>\n"
+  end
+
+  test "tilde code fence in list item, closing fence idemaligned, no lang" do
+    result = Earmark.to_html "1. one\n\n    ~~~\n    defmodule\n    ~~~"
+    assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"\">defmodule</code></pre>\n</li>\n</ol>\n"
+  end
+  test "tilde code fence in list item, closing fence less aligned" do
     result = Earmark.to_html "1. one\n\n    ~~~elixir\n    defmodule\n  ~~~"
     assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule</code></pre>\n</li>\n</ol>\n"
   end
 
-  test "tilde code fence in list item, closing fince more aligned" do
+  test "tilde code fence in list item, closing fence more aligned" do
     result = Earmark.to_html "  1. one\n    ~~~elixir\n    defmodule\n        ~~~"
     assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule</code></pre>\n</li>\n</ol>\n"
   end

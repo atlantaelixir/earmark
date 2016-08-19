@@ -80,7 +80,10 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   code block as indicated by `pending`.
   """
   def read_list_lines( lines, pending ) do 
+  x =
     _read_list_lines(lines, [], pending)
+    IO.inspect x
+    x
   end
 
   @not_pending {nil, 0}
@@ -146,12 +149,43 @@ defmodule Earmark.Helpers.LookaheadHelpers do
 
   # Only now we match for list lines inside an open multiline inline code block
   defp _read_list_lines([line|rest], result, pending) do
-    _read_list_lines(rest, [%{line|inside_code: true} | result], still_inline_code(line, pending))
+    _read_list_lines(rest,
+      [%{line|inside_code: !closing_indented_fence?(line, result)} | result],
+      still_inline_code(line, pending))
   end
+
   # Running into EOI insise an open multiline inline code block
   defp _read_list_lines([], result, pending) do
     { spaced, rest, lines } =_read_list_lines( [], result, @not_pending )
     { spaced, rest, lines, pending }
   end
 
+  defp closing_indented_fence?(%Line.Indent{line: line}, result),
+    do: _closing_indented_fence?(line, result) 
+  defp closing_indented_fence?(%Line.Text{line: line}, result),
+    do: _closing_indented_fence?(line, result) 
+  defp closing_indented_fence?(_, _), do: false
+     
+  defp _closing_indented_fence?(line, result) do 
+    case Regex.run( ~r/^\s*(```|~~~)\s*$/, line ) do
+      nil -> false
+      [_, fence] -> opening_indented_fence?(fence, result)
+    end
+  end
+
+  defp opening_indented_fence?(fence, result) do 
+    result
+    |> Enum.find( line_opens_fence?( fence ))
+  end
+
+  defp line_opens_fence?( fence ) do 
+    fn %Line.Indent{line: line} -> _line_opens_fence?(fence, line)
+       %Line.Text{line: line}   -> _line_opens_fence?(fence, line)
+       _                        -> false
+    end
+  end
+
+  defp _line_opens_fence?( fence, line ) do 
+    !!Regex.run( ~r/^\s*#{fence}/, line )
+  end
 end
