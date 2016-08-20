@@ -1,19 +1,26 @@
+%% 
+%% This is a simple lexer that lexes lexical tokens in each line.
+%% We split the input before we use the token lexer in order to be able
+%% to use parallelism
+%% These primitive tokens are then combined into more complex tokens by the scanner
+%%    e.g.
+%%
 Definitions.
 
-SPECIAL     = ][()_*+`~<>-{|}
-WHITE_SPACE = [\s\t]
-
-ANY         = [^{SPECIAL}{WHITE_SPACE}\n]
+SINGLE      = _`<
+HASH        = #
+SPECIAL     = {SINGLE}{HASH}
+WS          = \s\t
 
 Rules.
 
-[a-z]+  : {token, {word, TokenLine, TokenChars}}.
+[{SINGLE}] : {token, {single, hd(TokenChars)}}.
+
+{HASH}|{HASH}{HASH}|{HASH}{HASH}{HASH}|{HASH}{HASH}{HASH}{HASH}|{HASH}{HASH}{HASH}{HASH}{HASH}|{HASH}{HASH}{HASH}{HASH}{HASH}{HASH}                                   : {token,{hashes, length(TokenChars)}}. 
+{HASH}{HASH}{HASH}{HASH}{HASH}{HASH}{HASH}+ :  {token, {any, TokenChars}}.
+
+[^{SPECIAL}{WS}\n]+ : {token, {any, TokenChars}}.
+
+[{WS}]+  : {token, {ws, TokenChars}}.
 
 Erlang code.
-
-lstrip1([_ | Rest]) -> Rest.
-
-strip2([_ | Rest]) -> strip_last(Rest, []).
-strip_last("_", Result) -> lists:reverse(Result);
-strip_last([Any|Rest],Result) -> strip_last(Rest,[Any|Result]).
-underscored(Chars) -> strip2(Chars).
