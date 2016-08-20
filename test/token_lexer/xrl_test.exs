@@ -2,7 +2,7 @@ defmodule TokenLexer.XrlTest do
   use ExUnit.Case
 
   test "singles" do 
-    assert tokens1("__` x") == [ :single, :single, :single, :ws, :any ]
+    assert tokens1("__` x") == [ :single, :single, :backticks, :ws, :any ]
   end
 
   test "mixed" do
@@ -10,7 +10,7 @@ defmodule TokenLexer.XrlTest do
       { :ws, " "},
       { :any, "hello,"},
       { :single, ?_},
-      { :single, ?`},
+      { :backticks, 1},
       { :any, "x"}
     ]
   end

@@ -7,14 +7,17 @@
 %%
 Definitions.
 
-SINGLE      = _`<
+BT          = ` 
+SINGLE      = _<
 HASH        = #
-SPECIAL     = {SINGLE}{HASH}
+SPECIAL     = {SINGLE}{BT}{HASH}
 WS          = \s\t
 
 Rules.
 
 [{SINGLE}] : {token, {single, hd(TokenChars)}}.
+
+{BT}+      : {token, {backticks, length(TokenChars)}}.
 
 {HASH}|{HASH}{HASH}|{HASH}{HASH}{HASH}|{HASH}{HASH}{HASH}{HASH}|{HASH}{HASH}{HASH}{HASH}{HASH}|{HASH}{HASH}{HASH}{HASH}{HASH}{HASH}                                   : {token,{hashes, length(TokenChars)}}. 
 {HASH}{HASH}{HASH}{HASH}{HASH}{HASH}{HASH}+ :  {token, {any, TokenChars}}.
