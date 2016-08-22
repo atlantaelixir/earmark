@@ -8,7 +8,7 @@
 Definitions.
 
 BT          = ` 
-SINGLE      = _<
+SINGLE      = _<>\*\[\]\(\):\{\}\+\-"\.
 HASH        = #
 SPECIAL     = {SINGLE}{BT}{HASH}
 WS          = \s\t

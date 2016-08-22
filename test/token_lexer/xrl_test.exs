@@ -5,6 +5,12 @@ defmodule TokenLexer.XrlTest do
     assert tokens1("__` x") == [ :single, :single, :backticks, :ws, :any ]
   end
 
+  test "all singles" do
+    all_singles = "_<>*[](){}+-.\":"
+    assert tokens(all_singles) ==
+      Enum.zip( Stream.cycle([:single]), String.to_char_list(all_singles) )
+  end
+
   test "mixed" do
     assert tokens(" hello,_`x") == [
       { :ws, " "},
